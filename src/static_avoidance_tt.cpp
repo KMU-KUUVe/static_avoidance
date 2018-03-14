@@ -13,9 +13,9 @@
 #include <std_msgs/String.h>
 // #include <std_msgs/Empty.h>
 
-#define DETECT_DISTANCE 0.2
-#define CONSTANT_STEER 30
-#define CONSTANT_VEL 1520
+#define DETECT_DISTANCE 0.5
+#define CONSTANT_STEER 1500
+#define CONSTANT_VEL 1530
 
 using namespace std;
 
@@ -31,7 +31,7 @@ vector<int> steer_buffer;
 
 void calculator(const obstacle_detector::Obstacles data) {
   geometry_msgs::Point c, mycar;
-  bool flag = false;
+  bool flag = true;
   int speed = CONSTANT_VEL;
   int steer = 1500;
 
@@ -39,91 +39,77 @@ void calculator(const obstacle_detector::Obstacles data) {
   // Select nearest point and assign it to 'c'
   for(int i = 0; i < data.circles.size(); i++) {
     if(sqrt(data.circles[i].center.x * data.circles[i].center.x + data.circles[i].center.y * data.circles[i].center.y)  <= DETECT_DISTANCE) {
-      if(!flag || sqrt(c.x*c.x + c.y*c.y) > sqrt(data.circles[i].center.x * data.circles[i].center.x + data.circles[i].center.y * data.circles[i].center.y)) {
         flag = true;
         c = data.circles[i].center;
-      }
+
+	//c.y is lateral axis. so if c.y > 0 means the obstacles are on the left.
+	if(c.y < 0){
+	  sequence = 1;
+	}
+      	else{
+          sequence = 2;
+      	}
+
     }
   }
   
 
   double distance = sqrt(c.x * c.x + c.y * c.y);
+// c.x is longitudinal axis. so if c.x >0 means the obstacles are in the rear.
+     if(flag == 1){
+      //avoidance right Obstacles
+      if(sequence == 1){
+        if(c.x > 0.02){
+          turn_left_flag = true;
+          return_right_flag = false;
+        }
+        else{
+          return_right_flag = true;
+          turn_left_flag = false;
+        }
+      }
+      else if(sequence == 2){
+        if(c.x > 0.02){
+          turn_right_flag = true;
+          return_left_flag = false;
+        }
+        else{
+          return_left_flag = true;
+          turn_right_flag = false;
+         }
+      }
+    }
+    
+    
+    if(turn_left_flag){
+        steer = CONSTANT_STEER - ((1 - distance) * 200);
+        //turn_left_flag = false;
+    }
+    if(return_right_flag){
+        steer = CONSTANT_STEER + (distance * 200);
+        return_right_flag = false;
+    }
+    if(turn_right_flag){
+        steer = CONSTANT_STEER + ((1 - distance) * 200);
+        //turn_right_flag = false;
+    }
+    if(return_left_flag){
+        steer = CONSTANT_STEER - (distance * 200);
+        return_left_flag = false;
+    }
+
+
  
-  if(sequence == 0) { 
-    if(flag == 0) {
-      if(turn_left_flag) {
-        return_right_flag = true;
-	turn_left_flag = false;
-      }
-      else if(return_right_flag) {
-  	if(!steer_buffer.empty()) {
-          steer = -steer_buffer.back();
-	  steer_buffer.pop_back();
-	}
-	else {
-	  return_right_flag = false;
-	  sequence++;
- 	}
-      }  
-      else {
-        steer = 1350;
-      }
-    }
-    else if(flag == 1) {
-      if(turn_left_flag) {
-	steer = 1500;
-	//steer = -CONSTANT_STEER / (distance + 1);
-        steer_buffer.push_back(steer);
-	ROS_INFO("*****");
-      }
-      else {
-     	turn_left_flag = true;
-      }
-    }
-  }
-  else if(sequence == 1) {
-    if(flag == 0) {
-      if(turn_right_flag) {
-	return_left_flag = true;
-	turn_right_flag = false;
-      }
-      else if(return_left_flag) {
-	if(!steer_buffer.empty()) {
-	  steer = -steer_buffer.back();
-	  steer_buffer.pop_back();
-	}
-	else {
-	  return_left_flag = false;
-	  sequence++;
-	}
-      }
-      else {
-	steer = 1650;
-      }
-    }
-    else if(flag == 1) {
-      if(turn_right_flag) {
-	steer = 1500;
-	//steer = CONSTANT_STEER / (distance+1.8 );
-	steer_buffer.push_back(steer);
-      }
-      else {
-	turn_right_flag = true;
-      }
-    }
-  }
-  else {
-    steer = 1350;
-  }
-  // ackermann_msgs::AckermannDriveStamped msg;
+ // ackermann_msgs::AckermannDriveStamped msg;
   std_msgs::String msg;
   ROS_INFO("distance: %f", distance);
-  ROS_INFO("flag : %d", flag);
+  ROS_INFO("sequence : %d", sequence);
+  ROS_INFO("c.x : %f", c.x);
+  ROS_INFO("c.y : %f", c.y);
   ROS_INFO("left turn flag : %d", turn_left_flag);
   ROS_INFO("right turn flag : %d", turn_right_flag);
   ROS_INFO("return left flag : %d", return_left_flag);
   ROS_INFO("return right flag : %d", return_right_flag);
-  ROS_INFO("sequence : %d", sequence);
   ROS_INFO("Steer : %d", steer);
   ROS_INFO("Speed : %d", speed);
   ROS_INFO("-----------------------------------------");
