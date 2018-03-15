@@ -13,9 +13,9 @@
 #include <std_msgs/String.h>
 // #include <std_msgs/Empty.h>
 
-#define DETECT_DISTANCE 0.5
+#define DETECT_DISTANCE 0.9
 #define CONSTANT_STEER 1500
-#define CONSTANT_VEL 1530
+#define CONSTANT_VEL 1520
 
 using namespace std;
 
@@ -25,13 +25,14 @@ bool turn_left_flag = false;
 bool turn_right_flag = false;
 bool return_left_flag = false;
 bool return_right_flag = false;
+bool end_flag = false;
 int sequence = 0;
 
 vector<int> steer_buffer;
 
 void calculator(const obstacle_detector::Obstacles data) {
   geometry_msgs::Point c, mycar;
-  bool flag = true;
+  bool flag = false;
   int speed = CONSTANT_VEL;
   int steer = 1500;
 
@@ -62,39 +63,48 @@ void calculator(const obstacle_detector::Obstacles data) {
         if(c.x > 0.02){
           turn_left_flag = true;
           return_right_flag = false;
+	  end_flag = false;
         }
         else{
           return_right_flag = true;
           turn_left_flag = false;
+	  end_flag = false;
         }
       }
       else if(sequence == 2){
         if(c.x > 0.02){
           turn_right_flag = true;
           return_left_flag = false;
+	  end_flag = false;
         }
         else{
           return_left_flag = true;
           turn_right_flag = false;
+	  end_flag = false;
          }
       }
+    }
+    else if(flag == 0){
+	end_flag = true;
+	steer = 1500;
+	speed = 1500;
     }
     
     
     if(turn_left_flag){
-        steer = CONSTANT_STEER - ((1 - distance) * 200);
+        steer = CONSTANT_STEER - ((1 - distance) * 500);
         //turn_left_flag = false;
     }
     if(return_right_flag){
-        steer = CONSTANT_STEER + (distance * 200);
+        steer = CONSTANT_STEER + (distance * 550);
         return_right_flag = false;
     }
     if(turn_right_flag){
-        steer = CONSTANT_STEER + ((1 - distance) * 200);
+        steer = CONSTANT_STEER + ((1 - distance) * 500);
         //turn_right_flag = false;
     }
     if(return_left_flag){
-        steer = CONSTANT_STEER - (distance * 200);
+        steer = CONSTANT_STEER - (distance * 550);
         return_left_flag = false;
     }
 
@@ -108,8 +118,8 @@ void calculator(const obstacle_detector::Obstacles data) {
   ROS_INFO("c.y : %f", c.y);
   ROS_INFO("left turn flag : %d", turn_left_flag);
   ROS_INFO("right turn flag : %d", turn_right_flag);
-  ROS_INFO("return left flag : %d", return_left_flag);
-  ROS_INFO("return right flag : %d", return_right_flag);
+  ROS_INFO("end flag : %d",end_flag);
+  ROS_INFO("flag : %d",flag);
   ROS_INFO("Steer : %d", steer);
   ROS_INFO("Speed : %d", speed);
   ROS_INFO("-----------------------------------------");
