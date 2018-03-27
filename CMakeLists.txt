@@ -64,8 +64,12 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME} src/static_avoidance_tt.cpp)
+add_executable(${PROJECT_NAME} src/static_avoidance_tt.cpp) 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+
+add_executable(u_turn src/u_turn.cpp)
+target_link_libraries(u_turn ${catkin_LIBRARIES})
+
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
