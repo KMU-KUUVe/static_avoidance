@@ -35,4 +35,3 @@ include_directories(include
 
 add_executable(static_avoidance_node src/static_avoidance.cpp src/static_avoidance_node.cpp)
 target_link_libraries(static_avoidance_node ${catkin_LIBRARIES})
-
