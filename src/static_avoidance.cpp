@@ -20,15 +20,22 @@ namespace static_avoidance{
 		return_right_flag = false;
 		end_flag = false;
 		sequence = 0;
-		flag = false;
+		//flag = false;
 		c.x = 100;
 
 	}
 
 	void StaticAvoidance::obstacle_cb(const obstacle_detector::Obstacles& data) {
+		int CONST_VEL;
+		int DETECT_DISTANCE;
+		int OBSTACLE_RADIUS;
+		nh_.getParam("CONST_VEL", CONST_VEL);
+		nh_.getParam("OBSTACLE_RADIUS", OBSTACLE_RADIUS);
+		nh_.getParam("DETECT_DISTANCE", DETECT_DISTANCE);
+		
 		flag = false;
-		int speed = CONSTANT_VEL;
-		int steer = CONSTANT_STEER;
+		speed = CONST_VEL;
+		//steer = CONST_STEER;
 
 		// Select nearest point and assign it to 'c'
 		for(int i = 0; i < data.circles.size(); i++) {
@@ -48,10 +55,25 @@ namespace static_avoidance{
 	}
 	void StaticAvoidance::run(){
 		ros::Rate r(100);
+		int CONST_VEL;
+		int CONST_STEER;
+		int DETECT_DISTANCE;
+		float OBSTACLE_RADIUS;
+		float TURN_FACTOR;
+		int TURN_WEIGHT;
+		int RETURN_WEIGHT;
+		nh_.getParam("CONST_VEL", CONST_VEL);
+		nh_.getParam("DETECT_DISTANCE", DETECT_DISTANCE);
+		nh_.getParam("CONST_STEER", CONST_STEER);
+		nh_.getParam("OBSTACLE_RADIUS", OBSTACLE_RADIUS);
+		nh_.getParam("TURN_FACTOR", TURN_FACTOR);
+		nh_.getParam("TURN_WEIGHT", TURN_WEIGHT);
+		nh_.getParam("RETURN_WEIGHT", RETURN_WEIGHT);
+		
 		while(c.x >= DETECT_DISTANCE && ros::ok()){
 			ros::spinOnce();			
-			steer = 0;
-			speed = 6;
+			steer = CONST_STEER;
+			speed = CONST_VEL;
 			ROS_INFO("approaching the obstacle");
 		}
 
@@ -65,16 +87,21 @@ namespace static_avoidance{
 		// c.x is longitudinal axis. so if c.x >0 means the obstacles are in the  rear.		
 		//ROS_INFO("While c.x, c.y : %f, %f", c.x, c.y);
 		if(flag == 1){
+			//speed = CONST_VEL;
 			//avoidance right Obstacles
 			if(sequence == 1){
 				if(c.x > 0.05){
 					turn_left_flag = true;
 					return_right_flag = false;
+					turn_right_flag = false;
+					return_left_flag = false;
 					end_flag = false;
 				}
 				else{
 					return_right_flag = true;
 					turn_left_flag = false;
+					turn_right_flag = false;
+					return_left_flag = false;
 					end_flag = false;
 				}
 			}
@@ -82,46 +109,61 @@ namespace static_avoidance{
 				if(c.x > 0.05){
 					turn_right_flag = true;
 					return_left_flag = false;
+					turn_left_flag = false;
+					return_right_flag = false;
 					end_flag = false;
 				}
 				else{
 					return_left_flag = true;
 					turn_right_flag = false;
+					turn_left_flag = false;
+					return_right_flag = false;
 					end_flag = false;
 				}
 			}
+
 		}
 		else if(flag == 0){
 			end_flag = true;
+			turn_left_flag = false;
+			turn_right_flag = false;
+			return_left_flag = false;
+			return_right_flag = false;
 			steer = 0;
 			speed = 0;
 		}
 
 
 		if(turn_left_flag){
-			steer = int(CONSTANT_STEER - ((TURN_FACTOR - distance) * TURN_WEIGHT));
+			steer = int(CONST_STEER - ((TURN_FACTOR - distance) * TURN_WEIGHT));
 			//turn_left_flag = false;
 		}
 		if(return_right_flag){
-			steer = int(CONSTANT_STEER + (distance * RETURN_WEIGHT));
+			steer = int(CONST_STEER + (distance * RETURN_WEIGHT));
 			return_right_flag = false;
 		}
 		if(turn_right_flag){
-			steer = int(CONSTANT_STEER + ((TURN_FACTOR - distance) * TURN_WEIGHT));
+			steer = int(CONST_STEER + ((TURN_FACTOR - distance) * TURN_WEIGHT));
 			//turn_right_flag = false;
 		}
 		if(return_left_flag){
-			steer = int(CONSTANT_STEER - (distance * TURN_WEIGHT));
+			steer = int(CONST_STEER - (distance * TURN_WEIGHT));
 			return_left_flag = false;
 		}
 
-
+		if(steer > 27){
+			steer = 27;
+		}
+		if(steer < -27){
+			steer = -27;
+		}
 
 		// ackermann_msgs::AckermannDriveStamped msg;
 		//std_msgs::String msg;
 		//ROS_INFO("distance: %f", distance);
 		ROS_INFO("sequence : %d", sequence);
 		//ROS_INFO("c.x : %f", c.x);
+		ROS_INFO("c.x, c.y : %f, %f", c.x, c.y);
 		//ROS_INFO("c.y : %f", c.y);
 		ROS_INFO("left turn flag : %d", turn_left_flag);
 		ROS_INFO("right turn flag : %d", turn_right_flag);
