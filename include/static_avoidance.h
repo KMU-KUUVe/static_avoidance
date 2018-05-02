@@ -13,7 +13,7 @@
 #include <std_msgs/String.h>
 // #include <std_msgs/Empty.h>
 
-#define DETECT_DISTANCE 2
+#define DETECT_DISTANCE 5
 #define CONSTANT_STEER 0
 #define CONSTANT_VEL 6
 #define OBSTACLE_RADIUS 0.3
@@ -30,7 +30,7 @@ public:
 	StaticAvoidance();
 	StaticAvoidance(ros::NodeHandle nh);
 	void initSetup();
-    void obstacle_cb(const obstacle_detector::Obstacles& data);
+    	void obstacle_cb(const obstacle_detector::Obstacles& data);
 	void run();
 
 private:

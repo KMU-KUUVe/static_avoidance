@@ -20,22 +20,22 @@ namespace static_avoidance{
 		return_right_flag = false;
 		end_flag = false;
 		sequence = 0;
+		flag = false;
+		c.x = 100;
+
 	}
 
 	void StaticAvoidance::obstacle_cb(const obstacle_detector::Obstacles& data) {
-		geometry_msgs::Point c, mycar;
-		bool flag = false;
+		flag = false;
 		int speed = CONSTANT_VEL;
 		int steer = CONSTANT_STEER;
 
-
 		// Select nearest point and assign it to 'c'
 		for(int i = 0; i < data.circles.size(); i++) {
-
 			if( (data.circles[i].radius >= OBSTACLE_RADIUS) && (sqrt(data.circles[i].center.x * data.circles[i].center.x + data.circles[i].center.y * data.circles[i].center.y)  <= DETECT_DISTANCE)) {
 				flag = true;
 				c = data.circles[i].center;
-
+				//ROS_INFO("CallBack c.x, c.y : %f, %f", c.x, c.y);
 				//c.y is lateral axis. so if c.y > 0 means the obstacles are on the left.
 				if(c.y < 0){
 					sequence = 1;
@@ -43,12 +43,18 @@ namespace static_avoidance{
 				else{
 					sequence = 2;
 				}
-
-			}
+			}	
 		}
 	}
 	void StaticAvoidance::run(){
 		ros::Rate r(100);
+		while(c.x >= DETECT_DISTANCE && ros::ok()){
+			ros::spinOnce();			
+			steer = 0;
+			speed = 6;
+			ROS_INFO("approaching the obstacle");
+		}
+
 		while(ros::ok()){
 #ifdef DEBUG
 			ROS_INFO("While entered");
@@ -56,7 +62,8 @@ namespace static_avoidance{
 			ros::spinOnce();
 
 		double distance = sqrt(c.x * c.x + c.y * c.y);
-		// c.x is longitudinal axis. so if c.x >0 means the obstacles are in the rear.
+		// c.x is longitudinal axis. so if c.x >0 means the obstacles are in the  rear.		
+		//ROS_INFO("While c.x, c.y : %f, %f", c.x, c.y);
 		if(flag == 1){
 			//avoidance right Obstacles
 			if(sequence == 1){
