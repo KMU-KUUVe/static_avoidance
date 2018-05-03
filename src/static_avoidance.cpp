@@ -58,8 +58,8 @@ namespace static_avoidance{
 		int CONST_VEL;
 		int CONST_STEER;
 		int DETECT_DISTANCE;
-		float OBSTACLE_RADIUS;
-		float TURN_FACTOR;
+		double OBSTACLE_RADIUS;
+		double TURN_FACTOR;
 		int TURN_WEIGHT;
 		int RETURN_WEIGHT;
 		nh_.getParam("CONST_VEL", CONST_VEL);
