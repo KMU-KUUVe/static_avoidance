@@ -21,7 +21,7 @@ public:
 	StaticAvoidance();
 	StaticAvoidance(ros::NodeHandle nh);
 	void initSetup();
-    	void obstacle_cb(const obstacle_detector::Obstacles& data);
+    void obstacle_cb(const obstacle_detector::Obstacles& data);
 	void run();
 
 private:
@@ -38,6 +38,15 @@ private:
 	bool end_flag;
 	int sequence;
 	bool flag;
+
+	int CONST_VEL;
+	int CONST_STEER;
+	int DETECT_DISTANCE;
+	double OBSTACLE_RADIUS;
+	double TURN_FACTOR;
+	int TURN_WEIGHT;
+	int RETURN_WEIGHT;
+
 
 	vector<int> steer_buffer;
 

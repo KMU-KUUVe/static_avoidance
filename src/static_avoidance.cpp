@@ -2,7 +2,7 @@
 
 namespace static_avoidance{
 
-	StaticAvoidance::StaticAvoidance():nh_(){
+	StaticAvoidance::StaticAvoidance():nh_("~"){
 		initSetup();
 	}
 
@@ -12,7 +12,7 @@ namespace static_avoidance{
 
 	void StaticAvoidance::initSetup(){
 		pub = nh_.advertise<ackermann_msgs::AckermannDriveStamped> ("ackermann", 100);
-		sub = nh_.subscribe("raw_obstacles", 100, &StaticAvoidance::obstacle_cb, this);
+		sub = nh_.subscribe("/raw_obstacles", 100, &StaticAvoidance::obstacle_cb, this);
 		
 		turn_left_flag = false;
 		turn_right_flag = false;
@@ -26,9 +26,7 @@ namespace static_avoidance{
 	}
 
 	void StaticAvoidance::obstacle_cb(const obstacle_detector::Obstacles& data) {
-		int CONST_VEL;
-		int DETECT_DISTANCE;
-		int OBSTACLE_RADIUS;
+		
 		nh_.getParam("CONST_VEL", CONST_VEL);
 		nh_.getParam("OBSTACLE_RADIUS", OBSTACLE_RADIUS);
 		nh_.getParam("DETECT_DISTANCE", DETECT_DISTANCE);
@@ -36,7 +34,6 @@ namespace static_avoidance{
 		flag = false;
 		speed = CONST_VEL;
 		//steer = CONST_STEER;
-
 		// Select nearest point and assign it to 'c'
 		for(int i = 0; i < data.circles.size(); i++) {
 			if( (data.circles[i].radius >= OBSTACLE_RADIUS) && (sqrt(data.circles[i].center.x * data.circles[i].center.x + data.circles[i].center.y * data.circles[i].center.y)  <= DETECT_DISTANCE)) {
@@ -55,13 +52,6 @@ namespace static_avoidance{
 	}
 	void StaticAvoidance::run(){
 		ros::Rate r(100);
-		int CONST_VEL;
-		int CONST_STEER;
-		int DETECT_DISTANCE;
-		double OBSTACLE_RADIUS;
-		double TURN_FACTOR;
-		int TURN_WEIGHT;
-		int RETURN_WEIGHT;
 		nh_.getParam("CONST_VEL", CONST_VEL);
 		nh_.getParam("DETECT_DISTANCE", DETECT_DISTANCE);
 		nh_.getParam("CONST_STEER", CONST_STEER);
@@ -165,12 +155,11 @@ namespace static_avoidance{
 		//ROS_INFO("c.x : %f", c.x);
 		ROS_INFO("c.x, c.y : %f, %f", c.x, c.y);
 		//ROS_INFO("c.y : %f", c.y);
+		ROS_INFO("flag : %d",flag);
 		ROS_INFO("left turn flag : %d", turn_left_flag);
 		ROS_INFO("right turn flag : %d", turn_right_flag);
 		ROS_INFO("end flag : %d",end_flag);
-		ROS_INFO("flag : %d",flag);
-		ROS_INFO("Steer : %d", steer);
-		ROS_INFO("Speed : %d", speed);
+		ROS_INFO("Steer : %d Speed : %d", steer, speed);
 		ROS_INFO("-----------------------------------------");
 
 
