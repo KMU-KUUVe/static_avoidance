@@ -11,7 +11,7 @@ namespace static_avoidance{
 	}
 
 	void StaticAvoidance::initSetup(){
-		pub = nh_.advertise<ackermann_msgs::AckermannDriveStamped> ("ackermann", 100);
+		pub = nh_.advertise<ackermann_msgs::AckermannDriveStamped> ("/ackermann", 100);
 		sub = nh_.subscribe("/raw_obstacles", 100, &StaticAvoidance::obstacle_cb, this);
 		
 		turn_left_flag = false;
@@ -141,11 +141,11 @@ namespace static_avoidance{
 			return_left_flag = false;
 		}
 
-		if(steer > 27){
-			steer = 27;
+		if(steer > 26){
+			steer = 26;
 		}
-		if(steer < -27){
-			steer = -27;
+		if(steer < -26){
+			steer = -26;
 		}
 
 		// ackermann_msgs::AckermannDriveStamped msg;

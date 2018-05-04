@@ -6,8 +6,8 @@
 	  <param name="DETECT_DISTANCE" type="int" value="4"/>
 	  <param name="CONST_STEER" type="int" value="0"/>
 	  <param name="CONST_VEL" type="int" value="6"/>
-	  <param name="OBSTACLE_RADIUS" type="float" value="0.3"/>
-	  <param name="TURN_FACTOR" type="float" value="2.5"/>
+	  <param name="OBSTACLE_RADIUS" type="double" value="0.3"/>
+	  <param name="TURN_FACTOR" type="double" value="2.5"/>
 	  <param name="TURN_WEIGHT" type="int" value="10"/>
 	  <param name="RETURN_WEIGHT" type="int" value="12"/>
   </node>
