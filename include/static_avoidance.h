@@ -38,6 +38,7 @@ private:
 	bool end_flag;
 	int sequence;
 	bool flag;
+	int end_count;
 
 	int CONST_VEL;
 	int CONST_STEER;

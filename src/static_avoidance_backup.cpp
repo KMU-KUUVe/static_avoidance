@@ -22,7 +22,6 @@ namespace static_avoidance{
 		sequence = 0;
 		//flag = false;
 		c.x = 100;
-		end_count = 0;
 
 	}
 
@@ -35,8 +34,9 @@ namespace static_avoidance{
 		flag = false;
 		speed = CONST_VEL;
 		//steer = CONST_STEER;
+		// Select nearest point and assign it to 'c'
 		for(int i = 0; i < data.circles.size(); i++) {
-			if( (data.circles[i].radius >= OBSTACLE_RADIUS) &&(sqrt(data.circles[i].center.x * data.circles[i].center.x + data.circles[i].center.y * data.circles[i].center.y)  <= DETECT_DISTANCE)) {
+			if( (data.circles[i].radius >= OBSTACLE_RADIUS) && (sqrt(data.circles[i].center.x * data.circles[i].center.x + data.circles[i].center.y * data.circles[i].center.y)  <= DETECT_DISTANCE)) {
 				flag = true;
 				c = data.circles[i].center;
 				//ROS_INFO("CallBack c.x, c.y : %f, %f", c.x, c.y);
@@ -83,30 +83,30 @@ namespace static_avoidance{
 			//speed = CONST_VEL;
 			//avoidance right Obstacles
 			if(sequence == 1){
-				if(c.x <= 1 && c.x >= 0){
+				if(c.x > 0.05){
 					turn_left_flag = true;
 					return_right_flag = false;
 					turn_right_flag = false;
 					return_left_flag = false;
 					end_flag = false;
 				}
-				else if(c.x < 0){
+				else{
 					return_right_flag = true;
 					turn_left_flag = false;
 					turn_right_flag = false;
 					return_left_flag = false;
-					end_flag = false;
+				end_flag = false;
 				}
 			}
 			else if(sequence == 2){
-				if(c.x >= 0 && c.x <= 1){
+				if(c.x > 0.05){
 					turn_right_flag = true;
 					return_left_flag = false;
 					turn_left_flag = false;
 					return_right_flag = false;
 					end_flag = false;
 				}
-				else if(c.x < 0){
+				else{
 					return_left_flag = true;
 					turn_right_flag = false;
 					turn_left_flag = false;
@@ -114,27 +114,17 @@ namespace static_avoidance{
 					end_flag = false;
 				}
 			}
-		end_count = 0;
+
 		}
 		else if(flag == 0){
-			end_count ++;
-			ROS_INFO("count : %d", end_count);
-			if(end_count >= 50){
-				end_flag = true;
-				steer = 0;
-				speed = 0;
-				turn_left_flag = false;
-				turn_right_flag = false;
-				return_left_flag = false;
-				return_right_flag = false;
-			}
-			/*
+			end_flag = true;
 			turn_left_flag = false;
 			turn_right_flag = false;
 			return_left_flag = false;
-			return_right_flag = false;*/
+			return_right_flag = false;
+			steer = 0;
+			speed = 0;
 		}
-
 
 
 		if(turn_left_flag){
