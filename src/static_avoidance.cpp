@@ -83,14 +83,14 @@ namespace static_avoidance{
 			//speed = CONST_VEL;
 			//avoidance right Obstacles
 			if(sequence == 1){
-				if(c.x <= 1 && c.x >= 0){
+				if(c.x > 0.5){
 					turn_left_flag = true;
 					return_right_flag = false;
 					turn_right_flag = false;
 					return_left_flag = false;
 					end_flag = false;
 				}
-				else if(c.x < 0){
+				else{
 					return_right_flag = true;
 					turn_left_flag = false;
 					turn_right_flag = false;
@@ -99,14 +99,14 @@ namespace static_avoidance{
 				}
 			}
 			else if(sequence == 2){
-				if(c.x >= 0 && c.x <= 1){
+				if(c.x > 0.5){
 					turn_right_flag = true;
 					return_left_flag = false;
 					turn_left_flag = false;
 					return_right_flag = false;
 					end_flag = false;
 				}
-				else if(c.x < 0){
+				else{
 					return_left_flag = true;
 					turn_right_flag = false;
 					turn_left_flag = false;
@@ -119,7 +119,7 @@ namespace static_avoidance{
 		else if(flag == 0){
 			end_count ++;
 			ROS_INFO("count : %d", end_count);
-			if(end_count >= 50){
+			if(end_count >= 350){
 				end_flag = true;
 				steer = 0;
 				speed = 0;
@@ -139,19 +139,15 @@ namespace static_avoidance{
 
 		if(turn_left_flag){
 			steer = int(CONST_STEER - ((TURN_FACTOR - distance) * TURN_WEIGHT));
-			//turn_left_flag = false;
 		}
 		if(return_right_flag){
 			steer = int(CONST_STEER + (distance * RETURN_WEIGHT));
-			return_right_flag = false;
 		}
 		if(turn_right_flag){
 			steer = int(CONST_STEER + ((TURN_FACTOR - distance) * TURN_WEIGHT));
-			//turn_right_flag = false;
 		}
 		if(return_left_flag){
 			steer = int(CONST_STEER - (distance * TURN_WEIGHT));
-			return_left_flag = false;
 		}
 
 		if(steer > 26){
@@ -170,15 +166,18 @@ namespace static_avoidance{
 		//ROS_INFO("c.y : %f", c.y);
 		ROS_INFO("flag : %d",flag);
 		ROS_INFO("left turn flag : %d", turn_left_flag);
+		ROS_INFO("return right flag : %d", return_right_flag);
 		ROS_INFO("right turn flag : %d", turn_right_flag);
+		ROS_INFO("return left flag : %d", return_left_flag);
+		ROS_INFO("end count : %d",end_count);
 		ROS_INFO("end flag : %d",end_flag);
 		ROS_INFO("Steer : %d Speed : %d", steer, speed);
 		ROS_INFO("-----------------------------------------");
 
 
 		//msg.data = std::to_string(steer) + "," + std::to_string(speed) + "," ;
-		 msg.drive.steering_angle = steer;
-		 msg.drive.speed = speed;
+		msg.drive.steering_angle = steer;
+		msg.drive.speed = speed;
 		pub.publish(msg);
 	
 		r.sleep();

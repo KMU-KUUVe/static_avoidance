@@ -4,7 +4,7 @@
   <arg name="rviz_config_path" default="$(find static_avoidance)/rviz_config/static_avoidance.rviz" />
 
   <node pkg="static_avoidance" name="static_avoidance_node" type="static_avoidance_node" output="screen">
-	  <param name="DETECT_DISTANCE" type="int" value="4"/>
+	  <param name="DETECT_DISTANCE" type="int" value="2"/>
 	  <param name="CONST_STEER" type="int" value="0"/>
 	  <param name="CONST_VEL" type="int" value="6"/>
 	  <param name="OBSTACLE_RADIUS" type="double" value="0.2"/>
@@ -16,7 +16,7 @@
   <node pkg="rosbag" type="play" name="play" args="-l $(arg rosbag_path)"/> 
 
   <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
-    <rosparam command="load" file="$(find laser_filters)/examples/box_filter.yaml" />
+	  <rosparam command="load" file="$(find static_avoidance)/launch/box_filter.yaml" />
   </node>
 
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_config_path)"/>
